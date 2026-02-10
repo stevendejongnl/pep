@@ -1,0 +1,14 @@
+[Unit]
+Description=Pep - Keep System Awake Tool 💊
+After=graphical.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/home/stevendejong/.local/bin/pep
+Restart=on-failure
+RestartSec=5
+Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus"
+
+[Install]
+WantedBy=default.target
