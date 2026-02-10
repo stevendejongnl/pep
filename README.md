@@ -18,18 +18,30 @@ Pep is a minimalist system tray application that prevents your system from sleep
 
 ## Requirements
 
-- **Linux** with systemd and D-Bus
+- **Arch Linux** (or Arch-based distro) with systemd and D-Bus
 - **Python 3.12+**
-- **uv** (package manager)
 - **python-gobject** (system package for GTK/AppIndicator)
 - **systemd** (with systemd-inhibit)
 
 ## Installation
 
-### Quick Install
+### From AUR (recommended)
 
 ```bash
-cd /home/stevendejong/workspace/personal/tools/pep
+yay -S pep
+```
+
+Then enable and start the service:
+
+```bash
+systemctl --user enable --now pep.service
+```
+
+### From source
+
+```bash
+git clone https://github.com/stevendejongnl/pep.git
+cd pep
 make install
 ```
 
@@ -42,7 +54,8 @@ This will:
 ### Development Install
 
 ```bash
-cd /home/stevendejong/workspace/personal/tools/pep
+git clone https://github.com/stevendejongnl/pep.git
+cd pep
 make dev-install
 make run
 ```
@@ -91,8 +104,15 @@ systemctl --user is-enabled pep.service
 
 ## Uninstallation
 
+### AUR package
+
 ```bash
-cd /home/stevendejong/workspace/personal/tools/pep
+yay -R pep
+```
+
+### From source
+
+```bash
 make uninstall
 ```
 

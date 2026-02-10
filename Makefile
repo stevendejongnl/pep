@@ -20,7 +20,7 @@ install: lint typecheck
 	printf '#!/usr/bin/python3\n"""Pep launcher - uses system Python for PyGObject access."""\nimport sys\nsys.path.insert(0, "$(CURDIR)")\nfrom pep.main import main\nsys.exit(main())\n' > ~/.local/bin/pep
 	chmod +x ~/.local/bin/pep
 	mkdir -p ~/.config/systemd/user
-	cp pep.service ~/.config/systemd/user/
+	sed 's|ExecStart=/usr/bin/pep|ExecStart=$(HOME)/.local/bin/pep|' pep.service > ~/.config/systemd/user/pep.service
 	systemctl --user daemon-reload
 	systemctl --user enable pep.service
 	systemctl --user start pep.service

@@ -5,7 +5,7 @@ PartOf=graphical-session.target
 
 [Service]
 Type=simple
-ExecStart=/home/stevendejong/.local/bin/pep
+ExecStart=/usr/bin/pep
 Restart=on-failure
 RestartSec=5
 Environment="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/%U/bus"

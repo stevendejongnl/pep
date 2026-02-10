@@ -52,9 +52,9 @@ class PepTrayIndicator:
             self._get_icon_name(),
             AppIndicator3.IndicatorCategory.SYSTEM_SERVICES,
         )
-        self._indicator.set_icon_theme_path(
-            str(Path(__file__).resolve().parent.parent / "icons")
-        )
+        local_icons = Path(__file__).resolve().parent.parent / "icons"
+        if local_icons.is_dir():
+            self._indicator.set_icon_theme_path(str(local_icons))
         self._indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
 
         self._menu_items: dict[str, Gtk.CheckMenuItem] = {}
