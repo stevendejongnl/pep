@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <g transform="rotate(-45 12 12)">
+    <!-- Capsule outline -->
+    <rect x="6" y="8" width="12" height="8" rx="4" fill="none" stroke="#888888" stroke-width="1.2"/>
+    <!-- Divider -->
+    <line x1="12" y1="8" x2="12" y2="16" stroke="#888888" stroke-width="0.6" opacity="0.5"/>
+  </g>
+</svg>

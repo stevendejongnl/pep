@@ -2,6 +2,7 @@
 
 import logging
 import subprocess
+from pathlib import Path
 from typing import Callable
 
 try:
@@ -25,8 +26,8 @@ class PepTrayIndicator:
     """System tray indicator with toggle menu."""
 
     # Icon names for different states
-    ICON_FULL = "pep-cup-full"
-    ICON_EMPTY = "pep-cup-empty"
+    ICON_FULL = "pep-pill-full"
+    ICON_EMPTY = "pep-pill-empty"
 
     def __init__(
         self,
@@ -50,6 +51,9 @@ class PepTrayIndicator:
             "pep",
             self._get_icon_name(),
             AppIndicator3.IndicatorCategory.SYSTEM_SERVICES,
+        )
+        self._indicator.set_icon_theme_path(
+            str(Path(__file__).resolve().parent.parent / "icons")
         )
         self._indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
 
