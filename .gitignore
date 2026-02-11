@@ -22,6 +22,9 @@ venv/
 *.swo
 *~
 
+# AUR
+*.tar.gz
+
 # OS
 .DS_Store
 .env
