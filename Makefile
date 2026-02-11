@@ -1,4 +1,4 @@
-.PHONY: help install dev-install run uninstall lint typecheck format clean
+.PHONY: help install dev-install run uninstall lint typecheck format clean bump
 
 help:
 	@echo "Pep - Keep System Awake Tool 💊"
@@ -12,6 +12,7 @@ help:
 	@echo "  make typecheck        Run mypy type checker"
 	@echo "  make format           Format code with ruff"
 	@echo "  make clean            Clean up build artifacts"
+	@echo "  make bump VERSION=x.y.z  Bump version in all files"
 
 install: lint typecheck
 	@echo "Installing Pep..."
@@ -62,3 +63,19 @@ clean:
 	find . -type d -name "__pycache__" -delete
 	find . -type d -name "*.egg-info" -delete
 	rm -rf .mypy_cache .ruff_cache build dist
+
+bump:
+ifndef VERSION
+	$(error Usage: make bump VERSION=x.y.z)
+endif
+	@echo "Bumping version to $(VERSION)..."
+	sed -i 's/^version = ".*"/version = "$(VERSION)"/' pyproject.toml
+	sed -i 's/^__version__ = ".*"/__version__ = "$(VERSION)"/' pep/__init__.py
+	sed -i 's/^pkgver=.*/pkgver=$(VERSION)/' aur/PKGBUILD
+	@echo "✓ Version bumped to $(VERSION) in:"
+	@echo "  - pyproject.toml"
+	@echo "  - pep/__init__.py"
+	@echo "  - aur/PKGBUILD"
+	@grep 'version = ' pyproject.toml | head -1
+	@grep '__version__' pep/__init__.py
+	@grep 'pkgver=' aur/PKGBUILD

@@ -20,7 +20,8 @@ Pep is a minimalist system tray application that prevents your system from sleep
 
 - **Arch Linux** (or Arch-based distro) with systemd and D-Bus
 - **Python 3.12+**
-- **python-gobject** (system package for GTK/AppIndicator)
+- **python-gobject** (system package for GTK bindings)
+- **libayatana-appindicator** (system tray support)
 - **systemd** (with systemd-inhibit)
 
 ## Installation
@@ -46,10 +47,11 @@ make install
 ```
 
 This will:
-1. Sync dependencies with uv
-2. Install Pep as a command-line tool
-3. Set up the systemd service for auto-start
-4. Start Pep immediately
+1. Run linting and type checking
+2. Sync dependencies with uv
+3. Install Pep as a launcher in `~/.local/bin/`
+4. Set up the systemd user service for auto-start
+5. Start Pep immediately
 
 ### Development Install
 
@@ -79,8 +81,8 @@ The tray icon provides a menu with:
 - **Quit** - Exit Pep
 
 The icon appearance changes based on state:
-- Full cup ☕ = Keep-awake is active
-- Empty cup ☕ = Keep-awake is disabled
+- Full pill 💊 = Keep-awake is active
+- Empty pill 💊 = Keep-awake is disabled
 
 ### Managing Auto-Start
 
@@ -119,7 +121,7 @@ make uninstall
 This will:
 1. Stop and disable the systemd service
 2. Remove the service file
-3. Uninstall Pep
+3. Remove the launcher from `~/.local/bin/`
 
 ## Development
 
@@ -133,26 +135,46 @@ pep/
 │   ├── tray.py              # System tray indicator with AppIndicator3
 │   ├── config.py            # State persistence (~/.config/pep/config.json)
 │   └── main.py              # Entry point and orchestration
+├── icons/
+│   ├── pep-pill-full.svg    # Tray icon: keep-awake active
+│   └── pep-pill-empty.svg   # Tray icon: keep-awake disabled
+├── aur/
+│   ├── PKGBUILD             # AUR package build script
+│   ├── pep.install          # Post-install messages
+│   └── publish.sh           # AUR publish automation
+├── .github/
+│   └── workflows/
+│       └── release.yml      # GitHub release automation
 ├── pep.service              # systemd user service
 ├── pyproject.toml           # uv project configuration
 ├── Makefile                 # Quick commands
 ├── noxfile.py               # Development automation
+├── LICENSE                  # MIT license
 ├── README.md                # This file
 └── CLAUDE.md                # Developer documentation
 ```
 
-### Running Tests
+### Code Quality
 
 ```bash
 make lint          # Run ruff linter
 make typecheck     # Run mypy type checker
 make format        # Format code with ruff
+make clean         # Clean up build artifacts
+```
+
+### Version Management
+
+Bump the version across all files (`pyproject.toml`, `pep/__init__.py`, `aur/PKGBUILD`):
+
+```bash
+make bump VERSION=x.y.z
 ```
 
 ### Development Workflow
 
 1. **Make changes** to files in `pep/`
-2. **Run linter & type checker:**
+2. **Run code quality checks:**
    ```bash
    make lint typecheck
    ```

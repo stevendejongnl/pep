@@ -1,24 +1,6 @@
 # Pep Developer Guide
 
-This document provides technical context for developing and maintaining Pep.
-
-## Architecture Overview
-
-Pep is a three-component system:
-
-1. **Core Inhibitor** (`pep/core.py`) - Manages systemd-inhibit subprocess
-2. **System Tray Indicator** (`pep/tray.py`) - PyGObject/GTK3/AppIndicator3 GUI
-3. **Configuration** (`pep/config.py`) - JSON persistence in `~/.config/pep/`
-
-### Component Interaction
-
-```
-main.py (orchestrator)
-├── Config: Load/save ~/.config/pep/config.json
-├── Core: Enable/disable systemd-inhibit subprocess
-└── Tray: Display indicator, handle user clicks
-    └── Callbacks: Update config, manage core state
-```
+Technical context for developing and maintaining Pep. For user-facing documentation (installation, usage, project structure, troubleshooting), see [README.md](README.md).
 
 ## Key Design Decisions
 
@@ -64,13 +46,12 @@ main.py (orchestrator)
 - Minimal dependencies (system packages only)
 - Cross-desktop (works on GNOME, KDE, Xfce, etc.)
 - Built-in menu support
-- No need for custom icon rendering
 
 **How it works:**
 - AppIndicator3 provides the tray icon
 - GTK3 menu handles clicks
+- Custom SVG pill icons in `icons/` (loaded via `set_icon_theme_path`)
 - Icon name changes based on inhibitor state
-- No external icon files needed (uses theme icons)
 
 ## Implementation Details
 
@@ -136,9 +117,7 @@ subprocess.run(
 - We need the exit code to detect failure
 - We check errors and revert menu state on failure
 
-## Testing Strategy
-
-### Manual Verification
+## Manual Verification
 
 1. **Inhibitor works:**
    ```bash
@@ -147,17 +126,11 @@ subprocess.run(
    ```
 
 2. **Toggle updates:**
-   - Click "Keep Awake" off
-   - Run `systemd-inhibit --list | grep pep`
-   - Should see no lock
-   - Click "Keep Awake" on
-   - Run again, should see lock
+   - Click "Keep Awake" off → `systemd-inhibit --list | grep pep` → no lock
+   - Click "Keep Awake" on → run again → lock present
 
 3. **State persistence:**
-   - Toggle off
-   - Kill Pep
-   - Start Pep again
-   - Should still be off (config persisted)
+   - Toggle off → kill Pep → start Pep again → should still be off
 
 4. **Autostart:**
    ```bash
@@ -165,61 +138,16 @@ subprocess.run(
    ```
 
 5. **Reboot test:**
-   - Reboot
-   - Icon should appear automatically
-   - State should be preserved
-
-### Code Quality
-
-```bash
-make lint      # Check code style (ruff)
-make typecheck # Check type hints (mypy)
-make format    # Format code (ruff)
-```
-
-All three should pass before merging.
-
-## Common Issues and Solutions
-
-### Issue: Icon doesn't appear in tray
-
-**Cause:** Desktop environment doesn't support AppIndicator3 or python-gobject not installed
-
-**Fix:**
-```bash
-pacman -S python-gobject
-# Log out and log back in (reload systemd session)
-```
-
-### Issue: systemd-inhibit --list shows no lock
-
-**Cause:** Inhibitor subprocess crashed silently
-
-**Solution:** Check logs in journalctl
-```bash
-journalctl --user -u pep.service -n 50
-```
-
-### Issue: Pep won't start on boot
-
-**Cause:** Service not enabled or graphical session not available
-
-**Fix:**
-```bash
-systemctl --user enable pep.service
-# Log out and back in to start graphical session
-systemctl --user status pep.service  # Should show active
-```
+   - Reboot → icon should appear automatically → state preserved
 
 ## Future Enhancements
 
 ### Potential improvements (not implemented):
 
-1. **Custom icons** - Create .svg cup icons instead of relying on theme
-2. **Duration-based inhibit** - "Keep awake for 30 minutes" option
-3. **Keyboard shortcut** - Toggle via global hotkey
-4. **Sleep timer** - Countdown before auto-disabling
-5. **Log viewer** - Show inhibitor activity in GUI
+1. **Duration-based inhibit** - "Keep awake for 30 minutes" option
+2. **Keyboard shortcut** - Toggle via global hotkey
+3. **Sleep timer** - Countdown before auto-disabling
+4. **Log viewer** - Show inhibitor activity in GUI
 
 ### Unlikely to implement:
 
@@ -227,20 +155,14 @@ systemctl --user status pep.service  # Should show active
 - Wayland-specific features (Wayland support is improving)
 - Monitor-specific inhibit (systemd-inhibit is system-wide)
 
-## Dependencies
+## Version Management
 
-### System Packages (pre-installed)
+Version is tracked in three files that must stay in sync:
+- `pyproject.toml` (`version = "x.y.z"`)
+- `pep/__init__.py` (`__version__ = "x.y.z"`)
+- `aur/PKGBUILD` (`pkgver=x.y.z`)
 
-- `python-gobject` (3.54.5-2) - GTK3 + AppIndicator3 bindings
-- `systemd` - systemd-inhibit tool
-
-### Python Dependencies (via uv)
-
-- `ruff` - Linting and formatting
-- `mypy` - Type checking
-- `types-PyGObject` - Type hints for PyGObject
-
-**Note:** No runtime dependencies beyond system packages!
+Use `make bump VERSION=x.y.z` to update all three at once.
 
 ## Maintenance Notes
 
@@ -255,18 +177,3 @@ systemctl --user status pep.service  # Should show active
 - Code targets Python 3.12+
 - Uses standard library only (subprocess, signal, json, pathlib)
 - No pinned versions needed for system packages (compatible across versions)
-
-### Monitoring
-
-Check service health:
-```bash
-systemctl --user status pep.service
-journalctl --user -u pep.service --since "1 hour ago"
-```
-
-## Related Files
-
-- `pyproject.toml` - Project metadata and dependencies
-- `pep.service` - systemd user service file
-- `Makefile` - Quick development commands
-- `README.md` - User-facing documentation
